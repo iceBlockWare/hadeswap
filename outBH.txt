@@ -1,0 +1,716 @@
+// Sources flattened with hardhat v2.0.11 https://hardhat.org
+
+// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v3.4.0
+
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20 {
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `sender` to `recipient` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+
+
+// File @openzeppelin/contracts/utils/Context.sol@v3.4.0
+
+pragma solidity >=0.6.0 <0.8.0;
+
+/*
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with GSN meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address payable) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes memory) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        return msg.data;
+    }
+}
+
+
+// File @openzeppelin/contracts/access/Ownable.sol@v3.4.0
+
+pragma solidity >=0.6.0 <0.8.0;
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract Ownable is Context {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor () internal {
+        address msgSender = _msgSender();
+        _owner = msgSender;
+        emit OwnershipTransferred(address(0), msgSender);
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+        _;
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        emit OwnershipTransferred(_owner, address(0));
+        _owner = address(0);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        emit OwnershipTransferred(_owner, newOwner);
+        _owner = newOwner;
+    }
+}
+
+
+// File contracts/helpers/BoringHelperV1.sol
+
+/**
+ *Submitted for verification at Etherscan.io on 2021-03-23
+*/
+
+pragma solidity 0.6.12;
+pragma experimental ABIEncoderV2;
+
+// Copyright (c) 2021 BoringCrypto
+// Twitter: @Boring_Crypto
+interface IMasterChef {
+    function BONUS_MULTIPLIER() external view returns (uint256);
+
+    function bonusEndBlock() external view returns (uint256);
+
+    function devaddr() external view returns (address);
+
+    function migrator() external view returns (address);
+
+    function owner() external view returns (address);
+
+    function startBlock() external view returns (uint256);
+
+    function sushi() external view returns (address);
+
+    function sushiPerBlock() external view returns (uint256);
+
+    function totalAllocPoint() external view returns (uint256);
+
+    function poolLength() external view returns (uint256);
+
+    function poolInfo(uint256 nr)
+    external
+    view
+    returns (
+        address,
+        uint256,
+        uint256,
+        uint256
+    );
+
+    function userInfo(uint256 nr, address who) external view returns (uint256, uint256);
+
+    function pendingSushi(uint256 nr, address who) external view returns (uint256);
+}
+
+interface IPair is IERC20 {
+    function token0() external view returns (IERC20);
+
+    function token1() external view returns (IERC20);
+
+    function getReserves()
+    external
+    view
+    returns (
+        uint112,
+        uint112,
+        uint32
+    );
+}
+
+interface IFactory {
+    function allPairsLength() external view returns (uint256);
+
+    function allPairs(uint256 i) external view returns (IPair);
+
+    function getPair(IERC20 token0, IERC20 token1) external view returns (IPair);
+
+    function feeTo() external view returns (address);
+
+    function feeToSetter() external view returns (address);
+}
+
+library BoringMath {
+    function add(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require((c = a + b) >= b, "BoringMath: Add Overflow");
+    }
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require((c = a - b) <= a, "BoringMath: Underflow");
+    }
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        require(b == 0 || (c = a * b) / b == a, "BoringMath: Mul Overflow");
+    }
+}
+
+library BoringERC20 {
+    function returnDataToString(bytes memory data) internal pure returns (string memory) {
+        if (data.length >= 64) {
+            return abi.decode(data, (string));
+        } else if (data.length == 32) {
+            uint8 i = 0;
+            while (i < 32 && data[i] != 0) {
+                i++;
+            }
+            bytes memory bytesArray = new bytes(i);
+            for (i = 0; i < 32 && data[i] != 0; i++) {
+                bytesArray[i] = data[i];
+            }
+            return string(bytesArray);
+        } else {
+            return "???";
+        }
+    }
+
+    function symbol(IERC20 token) internal view returns (string memory) {
+        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(0x95d89b41));
+        return success ? returnDataToString(data) : "???";
+    }
+
+    function name(IERC20 token) internal view returns (string memory) {
+        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(0x06fdde03));
+        return success ? returnDataToString(data) : "???";
+    }
+
+    function decimals(IERC20 token) internal view returns (uint8) {
+        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(0x313ce567));
+        return success && data.length == 32 ? abi.decode(data, (uint8)) : 18;
+    }
+
+    function DOMAIN_SEPARATOR(IERC20 token) internal view returns (bytes32) {
+        (bool success, bytes memory data) = address(token).staticcall{gas: 10000}(abi.encodeWithSelector(0x3644e515));
+        return success && data.length == 32 ? abi.decode(data, (bytes32)) : bytes32(0);
+    }
+
+    function nonces(IERC20 token, address owner) internal view returns (uint256) {
+        (bool success, bytes memory data) = address(token).staticcall{gas: 5000}(abi.encodeWithSelector(0x7ecebe00, owner));
+        return success && data.length == 32 ? abi.decode(data, (uint256)) : uint256(-1); // Use max uint256 to signal failure to retrieve nonce (probably not supported)
+    }
+}
+
+library BoringPair {
+    function factory(IPair pair) internal view returns (IFactory) {
+        (bool success, bytes memory data) = address(pair).staticcall(abi.encodeWithSelector(0xc45a0155));
+        return success && data.length == 32 ? abi.decode(data, (IFactory)) : IFactory(0);
+    }
+}
+
+
+
+    struct Rebase {
+        uint128 elastic;
+        uint128 base;
+    }
+
+    struct AccrueInfo {
+        uint64 interestPerSecond;
+        uint64 lastAccrued;
+        uint128 feesEarnedFraction;
+    }
+
+
+contract BoringHelperV1 is Ownable {
+    using BoringMath for uint256;
+    using BoringERC20 for IERC20;
+    using BoringERC20 for IPair;
+    using BoringPair for IPair;
+
+    IMasterChef public chef; // IMasterChef(0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd);
+    address public maker; // ISushiMaker(0xE11fc0B43ab98Eb91e9836129d1ee7c3Bc95df50);
+    IERC20 public sushi; // ISushiToken(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
+    IERC20 public WETH; // 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    IERC20 public WBTC; // 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
+    IFactory public sushiFactory; // IFactory(0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac);
+    IFactory public uniV2Factory; // IFactory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
+    IERC20 public bar; // 0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272;
+
+    constructor(
+        IMasterChef chef_,
+        address maker_,
+        IERC20 sushi_,
+        IERC20 WETH_,
+        IERC20 WBTC_,
+        IFactory sushiFactory_,
+        IFactory uniV2Factory_,
+        IERC20 bar_
+    ) public {
+        chef = chef_;
+        maker = maker_;
+        sushi = sushi_;
+        WETH = WETH_;
+        WBTC = WBTC_;
+        sushiFactory = sushiFactory_;
+        uniV2Factory = uniV2Factory_;
+        bar = bar_;
+    }
+
+    function setContracts(
+        IMasterChef chef_,
+        address maker_,
+        IERC20 sushi_,
+        IERC20 WETH_,
+        IERC20 WBTC_,
+        IFactory sushiFactory_,
+        IFactory uniV2Factory_,
+        IERC20 bar_
+    ) public onlyOwner {
+        chef = chef_;
+        maker = maker_;
+        sushi = sushi_;
+        WETH = WETH_;
+        WBTC = WBTC_;
+        sushiFactory = sushiFactory_;
+        uniV2Factory = uniV2Factory_;
+        bar = bar_;
+    }
+
+    function getETHRate(IERC20 token) public view returns (uint256) {
+        if (token == WETH) {
+            return 1e18;
+        }
+        IPair pairUniV2;
+        IPair pairSushi;
+        if (uniV2Factory != IFactory(0)) {
+            pairUniV2 = IPair(uniV2Factory.getPair(token, WETH));
+        }
+        if (sushiFactory != IFactory(0)) {
+            pairSushi = IPair(sushiFactory.getPair(token, WETH));
+        }
+        if (address(pairUniV2) == address(0) && address(pairSushi) == address(0)) {
+            return 0;
+        }
+
+        uint112 reserve0;
+        uint112 reserve1;
+        IERC20 token0;
+        if (address(pairUniV2) != address(0)) {
+            (uint112 reserve0UniV2, uint112 reserve1UniV2, ) = pairUniV2.getReserves();
+            reserve0 += reserve0UniV2;
+            reserve1 += reserve1UniV2;
+            token0 = pairUniV2.token0();
+        }
+
+        if (address(pairSushi) != address(0)) {
+            (uint112 reserve0Sushi, uint112 reserve1Sushi, ) = pairSushi.getReserves();
+            reserve0 += reserve0Sushi;
+            reserve1 += reserve1Sushi;
+            if (token0 == IERC20(0)) {
+                token0 = pairSushi.token0();
+            }
+        }
+
+        if (token0 == WETH) {
+            return (uint256(reserve1) * 1e18) / reserve0;
+        } else {
+            return (uint256(reserve0) * 1e18) / reserve1;
+        }
+    }
+
+    struct Factory {
+        IFactory factory;
+        uint256 allPairsLength;
+    }
+
+    struct UIInfo {
+        uint256 ethBalance;
+        uint256 sushiBalance;
+        uint256 sushiBarBalance;
+        uint256 xsushiBalance;
+        uint256 xsushiSupply;
+        uint256 sushiBarAllowance;
+        Factory[] factories;
+        uint256 ethRate;
+        uint256 sushiRate;
+        uint256 btcRate;
+        uint256 pendingSushi;
+        uint256 blockTimeStamp;
+        bool[] masterContractApproved;
+    }
+
+    function getUIInfo(
+        address who,
+        IFactory[] calldata factoryAddresses,
+        IERC20 currency,
+        address[] calldata masterContracts
+    ) public view returns (UIInfo memory) {
+        UIInfo memory info;
+        info.ethBalance = who.balance;
+
+        info.factories = new Factory[](factoryAddresses.length);
+        for (uint256 i = 0; i < factoryAddresses.length; i++) {
+            IFactory factory = factoryAddresses[i];
+            info.factories[i].factory = factory;
+            info.factories[i].allPairsLength = factory.allPairsLength();
+        }
+
+        info.masterContractApproved = new bool[](masterContracts.length);
+
+        if (currency != IERC20(0)) {
+            info.ethRate = getETHRate(currency);
+        }
+
+        if (WBTC != IERC20(0)) {
+            info.btcRate = getETHRate(WBTC);
+        }
+
+        if (sushi != IERC20(0)) {
+            info.sushiRate = getETHRate(sushi);
+            info.sushiBalance = sushi.balanceOf(who);
+            info.sushiBarBalance = sushi.balanceOf(address(bar));
+            info.sushiBarAllowance = sushi.allowance(who, address(bar));
+        }
+
+        if (bar != IERC20(0)) {
+            info.xsushiBalance = bar.balanceOf(who);
+            info.xsushiSupply = bar.totalSupply();
+        }
+
+        if (chef != IMasterChef(0)) {
+            uint256 poolLength = chef.poolLength();
+            uint256 pendingSushi;
+            for (uint256 i = 0; i < poolLength; i++) {
+                pendingSushi += chef.pendingSushi(i, who);
+            }
+            info.pendingSushi = pendingSushi;
+        }
+        info.blockTimeStamp = block.timestamp;
+
+        return info;
+    }
+
+    struct Balance {
+        IERC20 token;
+        uint256 balance;
+    }
+
+    struct BalanceFull {
+        IERC20 token;
+        uint256 totalSupply;
+        uint256 balance;
+        uint256 nonce;
+        uint256 rate;
+    }
+
+    struct TokenInfo {
+        IERC20 token;
+        uint256 decimals;
+        string name;
+        string symbol;
+        bytes32 DOMAIN_SEPARATOR;
+    }
+
+    function getTokenInfo(address[] calldata addresses) public view returns (TokenInfo[] memory) {
+        TokenInfo[] memory infos = new TokenInfo[](addresses.length);
+
+        for (uint256 i = 0; i < addresses.length; i++) {
+            IERC20 token = IERC20(addresses[i]);
+            infos[i].token = token;
+
+            infos[i].name = token.name();
+            infos[i].symbol = token.symbol();
+            infos[i].decimals = token.decimals();
+            infos[i].DOMAIN_SEPARATOR = token.DOMAIN_SEPARATOR();
+        }
+
+        return infos;
+    }
+
+    function findBalances(address who, address[] calldata addresses) public view returns (Balance[] memory) {
+        Balance[] memory balances = new Balance[](addresses.length);
+
+        uint256 len = addresses.length;
+        for (uint256 i = 0; i < len; i++) {
+            IERC20 token = IERC20(addresses[i]);
+            balances[i].token = token;
+            balances[i].balance = token.balanceOf(who);
+        }
+
+        return balances;
+    }
+
+    function getBalances(address who, IERC20[] calldata addresses) public view returns (BalanceFull[] memory) {
+        BalanceFull[] memory balances = new BalanceFull[](addresses.length);
+
+        for (uint256 i = 0; i < addresses.length; i++) {
+            IERC20 token = addresses[i];
+            balances[i].totalSupply = token.totalSupply();
+            balances[i].token = token;
+            balances[i].balance = token.balanceOf(who);
+            balances[i].nonce = token.nonces(who);
+            balances[i].rate = getETHRate(token);
+        }
+
+        return balances;
+    }
+
+    struct PairBase {
+        IPair token;
+        IERC20 token0;
+        IERC20 token1;
+        uint256 totalSupply;
+    }
+
+    function getPairs(
+        IFactory factory,
+        uint256 fromID,
+        uint256 toID
+    ) public view returns (PairBase[] memory) {
+        PairBase[] memory pairs = new PairBase[](toID - fromID);
+
+        for (uint256 id = fromID; id < toID; id++) {
+            IPair token = factory.allPairs(id);
+            uint256 i = id - fromID;
+            pairs[i].token = token;
+            pairs[i].token0 = token.token0();
+            pairs[i].token1 = token.token1();
+            pairs[i].totalSupply = token.totalSupply();
+        }
+        return pairs;
+    }
+
+    struct PairPoll {
+        IPair token;
+        uint256 reserve0;
+        uint256 reserve1;
+        uint256 totalSupply;
+        uint256 balance;
+    }
+
+    function pollPairs(address who, IPair[] calldata addresses) public view returns (PairPoll[] memory) {
+        PairPoll[] memory pairs = new PairPoll[](addresses.length);
+        for (uint256 i = 0; i < addresses.length; i++) {
+            IPair token = addresses[i];
+            pairs[i].token = token;
+            (uint256 reserve0, uint256 reserve1, ) = token.getReserves();
+            pairs[i].reserve0 = reserve0;
+            pairs[i].reserve1 = reserve1;
+            pairs[i].balance = token.balanceOf(who);
+            pairs[i].totalSupply = token.totalSupply();
+        }
+        return pairs;
+    }
+
+    struct PoolsInfo {
+        uint256 totalAllocPoint;
+        uint256 poolLength;
+    }
+
+    struct PoolInfo {
+        uint256 pid;
+        IPair lpToken;
+        uint256 allocPoint;
+        bool isPair;
+        IFactory factory;
+        IERC20 token0;
+        IERC20 token1;
+        string name;
+        string symbol;
+        uint8 decimals;
+    }
+
+    function getPools(uint256[] calldata pids) public view returns (PoolsInfo memory, PoolInfo[] memory) {
+        PoolsInfo memory info;
+        info.totalAllocPoint = chef.totalAllocPoint();
+        uint256 poolLength = chef.poolLength();
+        info.poolLength = poolLength;
+
+        PoolInfo[] memory pools = new PoolInfo[](pids.length);
+
+        for (uint256 i = 0; i < pids.length; i++) {
+            pools[i].pid = pids[i];
+            (address lpToken, uint256 allocPoint, , ) = chef.poolInfo(pids[i]);
+            IPair uniV2 = IPair(lpToken);
+            pools[i].lpToken = uniV2;
+            pools[i].allocPoint = allocPoint;
+
+            pools[i].name = uniV2.name();
+            pools[i].symbol = uniV2.symbol();
+            pools[i].decimals = uniV2.decimals();
+
+            pools[i].factory = uniV2.factory();
+            if (pools[i].factory != IFactory(0)) {
+                pools[i].isPair = true;
+                pools[i].token0 = uniV2.token0();
+                pools[i].token1 = uniV2.token1();
+            }
+        }
+        return (info, pools);
+    }
+
+    struct PoolFound {
+        uint256 pid;
+        uint256 balance;
+    }
+
+    function findPools(address who, uint256[] calldata pids) public view returns (PoolFound[] memory) {
+        PoolFound[] memory pools = new PoolFound[](pids.length);
+
+        for (uint256 i = 0; i < pids.length; i++) {
+            pools[i].pid = pids[i];
+            (pools[i].balance, ) = chef.userInfo(pids[i], who);
+        }
+
+        return pools;
+    }
+
+    struct UserPoolInfo {
+        uint256 pid;
+        uint256 balance; // Balance of pool tokens
+        uint256 totalSupply; // Token staked lp tokens
+        uint256 lpBalance; // Balance of lp tokens not staked
+        uint256 lpTotalSupply; // TotalSupply of lp tokens
+        uint256 lpAllowance; // LP tokens approved for masterchef
+        uint256 reserve0;
+        uint256 reserve1;
+        uint256 rewardDebt;
+        uint256 pending; // Pending SUSHI
+    }
+
+    function pollPools(address who, uint256[] calldata pids) public view returns (UserPoolInfo[] memory) {
+        UserPoolInfo[] memory pools = new UserPoolInfo[](pids.length);
+
+        for (uint256 i = 0; i < pids.length; i++) {
+            (uint256 amount, ) = chef.userInfo(pids[i], who);
+            pools[i].balance = amount;
+            pools[i].pending = chef.pendingSushi(pids[i], who);
+
+            (address lpToken, , , ) = chef.poolInfo(pids[i]);
+            pools[i].pid = pids[i];
+            IPair uniV2 = IPair(lpToken);
+            IFactory factory = uniV2.factory();
+            if (factory != IFactory(0)) {
+                pools[i].totalSupply = uniV2.balanceOf(address(chef));
+                pools[i].lpAllowance = uniV2.allowance(who, address(chef));
+                pools[i].lpBalance = uniV2.balanceOf(who);
+                pools[i].lpTotalSupply = uniV2.totalSupply();
+
+                (uint112 reserve0, uint112 reserve1, ) = uniV2.getReserves();
+                pools[i].reserve0 = reserve0;
+                pools[i].reserve1 = reserve1;
+            }
+        }
+        return pools;
+    }
+
+}
