@@ -8,11 +8,11 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
 
     const chainId = await getChainId();
 
-    // Mint if testnet
-    if (chainId === "333888" || chainId === "3"){
-        console.log("testnet minting")
-        await soul.mint(deployer, '1000000000000000000000')
-    }
+    // // Mint if testnet
+    // if (chainId === "333888" || chainId === "3"){
+    //     console.log("testnet minting")
+    //     await soul.mint(deployer, '1000000000000000000000')
+    // }
 
     const { address } = await deploy("Plutus", {
         from: deployer,
@@ -34,7 +34,8 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
         // Transfer ownership of Plutus to dev
         console.log("Transfer ownership of Plutus to dev")
         await (await plutus.proposeOwner(dev)).wait()
-        await (await plutus.claimOwnership({from: dev})).wait()
+        // Call claim on explorer from dev account
+        // await (await plutus.connect(dev).claimOwnership({from:dev})).wait()
     }
 }
 
