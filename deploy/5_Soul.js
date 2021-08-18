@@ -12,4 +12,4 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 }
 
 module.exports.tags = ["SoulToken"]
-module.exports.dependencies = ["UniswapV2Factory", "UniswapV2Router02"]
+module.exports.dependencies = []

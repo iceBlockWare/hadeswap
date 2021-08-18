@@ -15,9 +15,6 @@ analyze:
         - contracts/uniswapv2/UniswapV2Factory.sol:UniswapV2Factory
         - contracts/uniswapv2/UniswapV2ERC20.sol:UniswapV2ERC20
         - contracts/uniswapv2/UniswapV2Router02.sol:UniswapV2Router02
-        - contracts/SushiRoll.sol:SushiRoll
-        - contracts/SushiToken.sol:SushiToken
+        - contracts/SoulToken.sol:SoulToken
         - contracts/SushiBar.sol:SushiBar
-        - contracts/MasterChef.sol:MasterChef
-        - contracts/governance/Timelock.sol:Timelock
-        - contracts/Migrator.sol:Migrator
+        - contracts/Plutus.sol:Plutus
