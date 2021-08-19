@@ -8,11 +8,11 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
 
     const chainId = await getChainId();
 
-    // // Mint if testnet
-    // if (chainId === "333888" || chainId === "3"){
-    //     console.log("testnet minting")
-    //     await soul.mint(deployer, '1000000000000000000000')
-    // }
+    // Mint if testnet
+    if (chainId === "333888" || chainId === "3"){
+        console.log("testnet minting")
+        await soul.mint(deployer, '1000000000000000000000')
+    }
 
     const { address } = await deploy("Plutus", {
         from: deployer,
