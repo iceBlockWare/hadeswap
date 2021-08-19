@@ -5,6 +5,12 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
   
     console.log("Deploying SushiBar...");
     console.log("SushiBar deployer: ", deployer);
+
+    await deploy("SushiToken", {
+      from: deployer,
+      log: true,
+      deterministicDeployment: false
+  })
   
     const sushi = await deployments.get("SushiToken")
   
