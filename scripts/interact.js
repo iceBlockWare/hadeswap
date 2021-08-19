@@ -5,31 +5,35 @@ const Router = artifacts.require("UniswapV2Router02");
 const Weth = artifacts.require("WETH9Mock");
 const Token = artifacts.require("ERC20Mock");
 const Plutus = artifacts.require("Plutus");
-const Chef = artifacts.require("MasterChef");
+// const Chef = artifacts.require("MasterChef");
 const Soul = artifacts.require("SoulToken");
-const Sushi = artifacts.require("SushiToken");
-
+// const Sushi = artifacts.require("SushiToken");
+const Helper = artifacts.require("BoringHelperV1")
 
 async function main() {
 
     let accounts = await ethers.provider.listAccounts();
     console.log((await ethers.provider.getBalance(accounts[0])).toString());
 
-    let uniRouter = await Router.at("")
-    let uniFactory = await Factory.at("");
-    let weth =  await Weth.at("");
-    let usdt = await Token.at("");
-    let dai = await Token.at("");
-    let usdc = await Token.at("");
+    // let uniRouter = await Router.at("")
+    // let uniFactory = await Factory.at("");
+    // let weth =  await Weth.at("");
+    // let usdt = await Token.at("");
+    // let dai = await Token.at("");
+    // let usdc = await Token.at("");
+    //
+    // let plutus = await Plutus.at("");
+    // let masterChef = await Chef.at("");
+    //
+    // let soul = await Soul.at("");
+    // let sushi = await Sushi.at("");
 
-    let plutus = await Plutus.at("");
-    let masterChef = await Chef.at("");
-
-    let soul = await Soul.at("");
-    let sushi = await Sushi.at("");
+    let helper = await Helper.at("0x7aDcf7F865b0029cB4ebe010203292347Dd34F2B")
 
 
     let deployeador = accounts[0];
+
+    console.log((await helper.getPools([0, 1, 2, 3, 4])));
 
     let timestamp = Math.floor(Date.now() / 1000) + 300;
     // 0x808aCc5cF1576B01D28Fd89340174A8973FFA7C0 200000000000000000000 200000000000000000000 100000000000000000 0xa7562DA25C745ef83EF7d295a12a59e911eF50D0 0x61023148
@@ -52,19 +56,19 @@ async function main() {
     // console.log('dai-weth');
     // await uniRouter.addLiquidityETH(dai.address, '3150000000000000000000',
     //     '3150000000000000000000', '1000000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp, {value: '1000000000000000000'});
-    console.log('soul-weth');
-    await uniRouter.addLiquidityETH(soul.address, '10000000000000000000',
-        '10000000000000000000', '1000000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp, {value: '1000000000000000000'});
-    console.log('sushi-weth');
-    await uniRouter.addLiquidityETH(sushi.address, '1000000000000000000',
-        '1000000000000000000', '100000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp, {value: '100000000000000000'});
-    console.log('soul-usdt');
-    await uniRouter.addLiquidity(soul.address, usdt.address, '1000000000000000000', '315000000000000000000',
-        '1000000000000000000', '315000000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp)
-    console.log('suhsi-usdt');
-    await uniRouter.addLiquidity(sushi.address, usdt.address, '1000000000000000000', '315000000000000000000',
-        '1000000000000000000', '315000000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp)
-    console.log("chefs")
+    // console.log('soul-weth');
+    // await uniRouter.addLiquidityETH(soul.address, '10000000000000000000',
+    //     '10000000000000000000', '1000000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp, {value: '1000000000000000000'});
+    // console.log('sushi-weth');
+    // await uniRouter.addLiquidityETH(sushi.address, '1000000000000000000',
+    //     '1000000000000000000', '100000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp, {value: '100000000000000000'});
+    // console.log('soul-usdt');
+    // await uniRouter.addLiquidity(soul.address, usdt.address, '1000000000000000000', '315000000000000000000',
+    //     '1000000000000000000', '315000000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp)
+    // console.log('suhsi-usdt');
+    // await uniRouter.addLiquidity(sushi.address, usdt.address, '1000000000000000000', '315000000000000000000',
+    //     '1000000000000000000', '315000000000000000000', '0xa7562DA25C745ef83EF7d295a12a59e911eF50D0', timestamp)
+    // console.log("chefs")
     // await plutus.add(10, "", true);
 
 }
