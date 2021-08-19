@@ -1,9 +1,9 @@
 {
-  "name": "@sushiswap/core",
-  "version": "1.4.2",
+  "name": "@hadeswap/core",
+  "version": "1.0.0",
   "license": "MIT",
   "types": "./types/index.ts",
-  "description": "Core contracts for the SushiSwap protocol",
+  "description": "Core contracts for the Hadeswap protocol",
   "files": [
     "abi",
     "artifacts",
@@ -15,20 +15,19 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sushiswap/sushiswap.git"
+    "url": "git+https://github.com/hades-finance/hadeswap.git"
   },
   "bugs": {
-    "url": "https://github.com/sushiswap/sushiswap/issues"
+    "url": "https://github.com/hades-finance/hadeswap/issues"
   },
-  "homepage": "https://github.com/sushiswap/sushiswap#readme",
+  "homepage": "https://github.com/hades-finance/hadeswap#readme",
   "keywords": [
-    "sushiswap",
-    "ethereum"
+    "hadeswap",
+    "polis"
   ],
   "scripts": {
     "build": "hardhat compile",
     "console": "hardhat console",
-    "testnet:deploy": "yarn ropsten:deploy && yarn rinkeby:deploy && yarn goerli:deploy && yarn kovan:deploy && yarn moonbase:deploy && yarn arbitrum:deploy",
     "mainnet:deploy": "hardhat --network mainnet deploy",
     "mainnet:verify": "hardhat --network mainnet etherscan-verify --solc-input",
     "mainnet:export": "hardhat --network mainnet export --export exports/mainnet.json",
@@ -38,19 +37,12 @@
     "rinkeby:deploy": "hardhat --network rinkeby deploy",
     "rinkeby:verify": "hardhat --network rinkeby etherscan-verify --solc-input",
     "rinkeby:export": "hardhat --network rinkeby export --export exports/rinkeby.json",
-    "goerli:deploy": "hardhat --network goerli deploy",
-    "goerli:verify": "hardhat --network goerli etherscan-verify --solc-input",
-    "goerli:export": "hardhat --network goerli export --export exports/goerli.json",
     "kovan:deploy": "hardhat --network kovan deploy",
     "kovan:export": "hardhat --network kovan export --export exports/kovan.json",
     "kovan:verify": "hardhat --network kovan etherscan-verify --solc-input",
     "sparta:deploy": "hardhat --network sparta deploy",
     "sparta:export": "hardhat --network sparta export --export exports/sparta.json",
     "sparta:verify": "hardhat --network sparta etherscan-verify --solc-input",
-    "moonbase:deploy": "hardhat --network moonbase deploy",
-    "moonbase:export": "hardhat --network moonbase export --export exports/moonbase.json",
-    "arbitrum:deploy": "hardhat --network arbitrum deploy",
-    "arbitrum:export": "hardhat --network arbitrum export --export exports/arbitrum.json",
     "export": "hardhat export --export-all exports/deployments.json",
     "test": "hardhat test --verbose",
     "test:coverage": "cross-env NODE_OPTIONS=\"--max-old-space-size=2048\" hardhat coverage",
