@@ -7,6 +7,15 @@ module.exports = async function ({ ethers: { getNamedSigner }, getNamedAccounts,
 
   const chainId = await getChainId()
 
+  
+  console.log("Deploying SushiMaker...");
+  console.log("SushiMaker deployer: ", deployer);
+
+  await deploy("WETH9Mock", {
+    from: deployer,
+    log: true,
+  })
+
   const factory = await deployments.get("UniswapV2Factory")
   const bar = await deployments.get("SushiBar")
   const sushi = await deployments.get("SushiToken")

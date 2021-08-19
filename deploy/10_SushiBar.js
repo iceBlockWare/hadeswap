@@ -3,7 +3,8 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
   
     const { deployer } = await getNamedAccounts()
   
-    console.log("Deployer: ", deployer);
+    console.log("Deploying SushiBar...");
+    console.log("SushiBar deployer: ", deployer);
   
     const sushi = await deployments.get("SushiToken")
   
