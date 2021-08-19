@@ -8,12 +8,6 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
 
     const chainId = await getChainId();
 
-    // Mint if testnet
-    if (chainId === "333888" || chainId === "3"){
-        console.log("testnet minting")
-        await soul.mint(deployer, '1000000000000000000000')
-    }
-
     const { address } = await deploy("Plutus", {
         from: deployer,
         args: [soul.address, dev, "1000000000000000000", "100000"],
@@ -24,7 +18,12 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
     const plutus = await ethers.getContract("Plutus")
 
     if (await soul.owner() !== address) {
-        // Transfer Sushi Ownership to Chef
+        // Mint if testnet
+        if (chainId === "333888" || chainId === "3"){
+            console.log("testnet minting")
+            await soul.mint(deployer, '1000000000000000000000')
+        }
+        // Transfer Sushi Ownership to Plutus
         console.log("Transfer Soul Ownership to Plutus")
         await (await soul.proposeOwner(address)).wait()
         await (await plutus.claimToken(soul.address)).wait()
