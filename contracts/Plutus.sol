@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./SoulToken.sol";
+import "./Drachma.sol";
 
 
 contract Plutus is Ownable {
@@ -35,8 +36,10 @@ contract Plutus is Ownable {
         uint256 lastRewardBlock; // Last block number that SOULs distribution occurs.
         uint256 accSoulPerShare; // Accumulated SOULs per share, times 1e12. See below.
     }
-    // The SOUL TOKEN!
+    // The Soul Token
     SoulToken public soul;
+    // The Drachma token
+    Drachma public immutable drachma;
     // Dev address.
     address public devaddr;
     // SOUL tokens created per block.
@@ -59,11 +62,13 @@ contract Plutus is Ownable {
 
     constructor(
         SoulToken _soul,
+        Drachma _drachma,
         address _devaddr,
         uint256 _soulPerBlock,
         uint256 _startBlock
     ) public {
         soul = _soul;
+        drachma = _drachma;
         devaddr = _devaddr;
         soulPerBlock = _soulPerBlock;
         startBlock = _startBlock;
@@ -158,6 +163,10 @@ contract Plutus is Ownable {
                 _amount
             );
             user.amount = user.amount.add(_amount);
+            if (_pid == 0) {
+                // The first pool gives governance
+                drachma.mint(address(msg.sender), _amount);
+            }
         }
         user.rewardDebt = user.amount.mul(pool.accSoulPerShare).div(1e12);
         emit Deposit(msg.sender, _pid, _amount);
@@ -176,6 +185,10 @@ contract Plutus is Ownable {
         if (_amount > 0) {
             user.amount = user.amount.sub(_amount);
             pool.lpToken.safeTransfer(address(msg.sender), _amount);
+            if (_pid == 0) {
+                // Burn the drachma from user
+                drachma.burn(address(msg.sender), _amount);
+            }
         }
         user.rewardDebt = user.amount.mul(pool.accSoulPerShare).div(1e12);
         emit Withdraw(msg.sender, _pid, _amount);

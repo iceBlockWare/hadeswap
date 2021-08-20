@@ -13,20 +13,25 @@ describe("Plutus", function () {
 
         this.Plutus = await ethers.getContractFactory("Plutus")
         this.SoulToken = await ethers.getContractFactory("SoulToken")
+        this.Drachma = await ethers.getContractFactory("Drachma")
         this.ERC20Mock = await ethers.getContractFactory("ERC20Mock", this.minter)
     })
 
     beforeEach(async function () {
         this.soul = await this.SoulToken.deploy()
         await this.soul.deployed()
+        this.drachma = await this.Drachma.deploy()
+        await this.drachma.deployed();
     })
 
     it("should set correct state variables", async function () {
-        this.plutus = await this.Plutus.deploy(this.soul.address, this.dev.address, "1000", "0")
+        this.plutus = await this.Plutus.deploy(this.soul.address, this.drachma.address, this.dev.address, "1000", "0")
         await this.plutus.deployed()
 
         await this.soul.proposeOwner(this.plutus.address)
         await this.plutus.claimToken(this.soul.address)
+        await this.drachma.proposeOwner(this.plutus.address)
+        await this.plutus.claimToken(this.drachma.address)
 
         const soul = await this.plutus.soul()
         const devaddr = await this.plutus.devaddr()
@@ -38,7 +43,7 @@ describe("Plutus", function () {
     })
 
     it("should allow owner and only owner to update dev", async function () {
-        this.plutus = await this.Plutus.deploy(this.soul.address, this.dev.address, "1000", "0")
+        this.plutus = await this.Plutus.deploy(this.soul.address, this.drachma.address, this.dev.address, "1000", "0")
         await this.plutus.deployed()
 
         // alice is the owner, so only alice can change dev
@@ -79,8 +84,11 @@ describe("Plutus", function () {
 
         it("should allow emergency withdraw", async function () {
             // 1000 per block farming rate starting at block 100
-            this.plutus = await this.Plutus.deploy(this.soul.address, this.dev.address, "1000", "100")
+            this.plutus = await this.Plutus.deploy(this.soul.address, this.drachma.address, this.dev.address, "1000", "100")
             await this.plutus.deployed()
+
+            await this.drachma.proposeOwner(this.plutus.address)
+            await this.plutus.claimToken(this.drachma.address)
 
             await this.plutus.add("100", this.lp.address)
 
@@ -97,11 +105,13 @@ describe("Plutus", function () {
 
         it("should give out SOULs only after farming time", async function () {
             // 1000 per block farming rate starting at block 100
-            this.plutus = await this.Plutus.deploy(this.soul.address, this.dev.address, "1000", "100")
+            this.plutus = await this.Plutus.deploy(this.soul.address, this.drachma.address, this.dev.address, "1000", "100")
             await this.plutus.deployed()
 
             await this.soul.proposeOwner(this.plutus.address)
             await this.plutus.claimToken(this.soul.address)
+            await this.drachma.proposeOwner(this.plutus.address)
+            await this.plutus.claimToken(this.drachma.address)
 
             await this.plutus.add("100", this.lp.address)
 
@@ -134,11 +144,13 @@ describe("Plutus", function () {
 
         it("should not distribute SOULs if no one deposit", async function () {
             // 1000 per block farming rate starting at block 100
-            this.plutus = await this.Plutus.deploy(this.soul.address, this.dev.address, "1000", "100")
+            this.plutus = await this.Plutus.deploy(this.soul.address, this.drachma.address, this.dev.address, "1000", "100")
             await this.plutus.deployed()
 
             await this.soul.proposeOwner(this.plutus.address)
             await this.plutus.claimToken(this.soul.address)
+            await this.drachma.proposeOwner(this.plutus.address)
+            await this.plutus.claimToken(this.drachma.address)
 
             await this.plutus.add("100", this.lp.address)
             await this.lp.connect(this.bob).approve(this.plutus.address, "1000")
@@ -162,11 +174,13 @@ describe("Plutus", function () {
 
         it("should distribute SOULs properly for each staker", async function () {
             // 1000 per block farming rate starting at block 300
-            this.plutus = await this.Plutus.deploy(this.soul.address, this.dev.address, "1000", "300")
+            this.plutus = await this.Plutus.deploy(this.soul.address, this.drachma.address, this.dev.address, "1000", "300")
             await this.plutus.deployed()
 
             await this.soul.proposeOwner(this.plutus.address)
             await this.plutus.claimToken(this.soul.address)
+            await this.drachma.proposeOwner(this.plutus.address)
+            await this.plutus.claimToken(this.drachma.address)
 
             await this.plutus.add("100", this.lp.address)
             await this.lp.connect(this.alice).approve(this.plutus.address, "1000", {
@@ -233,11 +247,13 @@ describe("Plutus", function () {
 
         it("should give proper SOULs allocation to each pool", async function () {
             // 1000 per block farming rate starting at block 400
-            this.plutus = await this.Plutus.deploy(this.soul.address, this.dev.address, "1000", "400")
+            this.plutus = await this.Plutus.deploy(this.soul.address, this.drachma.address, this.dev.address, "1000", "400")
             await this.plutus.deployed()
 
             await this.soul.proposeOwner(this.plutus.address)
             await this.plutus.claimToken(this.soul.address)
+            await this.drachma.proposeOwner(this.plutus.address)
+            await this.plutus.claimToken(this.drachma.address)
 
             await this.lp.connect(this.alice).approve(this.plutus.address, "1000", { from: this.alice.address })
             await this.lp2.connect(this.bob).approve(this.plutus.address, "1000", { from: this.bob.address })
@@ -261,6 +277,30 @@ describe("Plutus", function () {
             expect(await this.plutus.pendingSoul(0, this.alice.address)).to.equal("13333")
             expect(await this.plutus.pendingSoul(1, this.bob.address)).to.equal("3333")
         })
+
+        it('should get Governance Votes from Plutus', async function () {
+            // 1000 per block farming rate starting at block 500
+            this.plutus = await this.Plutus.deploy(this.soul.address, this.drachma.address, this.dev.address, "1000", "500")
+            await this.plutus.deployed()
+
+            await this.soul.proposeOwner(this.plutus.address)
+            await this.plutus.claimToken(this.soul.address)
+            await this.drachma.proposeOwner(this.plutus.address)
+            await this.plutus.claimToken(this.drachma.address)
+
+            await this.lp.connect(this.alice).approve(this.plutus.address, "1000", { from: this.alice.address })
+            await this.plutus.add("10", this.lp.address)
+
+            await this.plutus.connect(this.alice).deposit(0, "10", { from: this.alice.address })
+
+            assert.equal((await this.drachma.totalSupply()).toString(), "10");
+            assert.equal((await this.drachma.balanceOf(this.alice.address)).toString(), "10");
+            // Withdraw DRACHMA, lose votes
+            await this.plutus.connect(this.alice).withdraw(0, "10", { from: this.alice.address })
+
+            assert.equal((await this.drachma.totalSupply()).toString(), '0');
+            assert.equal((await this.drachma.balanceOf(this.alice.address)).toString(), '0');
+        });
 
     })
 })
