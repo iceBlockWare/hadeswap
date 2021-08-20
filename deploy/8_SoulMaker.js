@@ -31,7 +31,7 @@ module.exports = async function ({ ethers: { getNamedSigner }, getNamedAccounts,
   const maker = await ethers.getContract("SoulMaker")
   if (await maker.owner() !== dev) {
     console.log("Setting maker owner")
-    await (await maker.transferOwnership(dev, true, false)).wait()
+    await (await maker.proposeOwner(dev)).wait()
   }
 }
 

@@ -71,22 +71,6 @@ contract Ownable is Context {
         proposedOwner = _proposedOwner;
     }
 
-    // F1 - F9: OK
-    // C1 - C21: OK
-    function transferOwnership(address newOwner, bool direct, bool renounce) public onlyOwner {
-        if (direct) {
-            // Checks
-            require(newOwner != address(0) || renounce, "Ownable: zero address");
-
-            // Effects
-            emit OwnershipTransferred(_owner, newOwner);
-            _owner = newOwner;
-        } else {
-            // Effects
-            proposedOwner = newOwner;
-        }
-    }
-
     /**
      * @dev If the address has been proposed, it can accept the ownership,
      * Can only be called by the current proposed owner.
