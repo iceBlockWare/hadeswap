@@ -1,64 +1,84 @@
 // SPDX-License-Identifier: MIT
-// Audit on 5-Jan-2021 by Keno and BoringCrypto
 
-// P1 - P3: OK
 pragma solidity 0.6.12;
 
-// Source: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol + Claimable.sol
-// Edited by BoringCrypto
+import "@openzeppelin/contracts/GSN/Context.sol";
 
-// T1 - T4: OK
-contract OwnableData {
-    // V1 - V5: OK
-    address public owner;
-    // V1 - V5: OK
-    address public pendingOwner;
-}
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {proposeOwner/claimOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+contract Ownable is Context {
+    address private _owner;
+    address private proposedOwner;
 
-// T1 - T4: OK
-contract Ownable is OwnableData {
-    // E1: OK
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
-    constructor () internal {
-        owner = msg.sender;
-        emit OwnershipTransferred(address(0), msg.sender);
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor() public {
+        address msgSender = _msgSender();
+        _owner = msgSender;
+        emit OwnershipTransferred(address(0), msgSender);
     }
 
-    // F1 - F9: OK
-    // C1 - C21: OK
-    function transferOwnership(address newOwner, bool direct, bool renounce) public onlyOwner {
-        if (direct) {
-            // Checks
-            require(newOwner != address(0) || renounce, "Ownable: zero address");
-
-            // Effects
-            emit OwnershipTransferred(owner, newOwner);
-            owner = newOwner;
-        } else {
-            // Effects
-            pendingOwner = newOwner;
-        }
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view returns (address) {
+        return _owner;
     }
 
-    // F1 - F9: OK
-    // C1 - C21: OK
-    function claimOwnership() public {
-        address _pendingOwner = pendingOwner;
-
-        // Checks
-        require(msg.sender == _pendingOwner, "Ownable: caller != pending owner");
-
-        // Effects
-        emit OwnershipTransferred(owner, _pendingOwner);
-        owner = _pendingOwner;
-        pendingOwner = address(0);
-    }
-
-    // M1 - M5: OK
-    // C1 - C21: OK
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
     modifier onlyOwner() {
-        require(msg.sender == owner, "Ownable: caller is not the owner");
+        require(_owner == _msgSender(), "Ownable: caller is not the owner");
         _;
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        emit OwnershipTransferred(_owner, address(0));
+        _owner = address(0);
+        proposedOwner = address(0);
+    }
+
+    /**
+     * @dev Proposes a new owner of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function proposeOwner(address _proposedOwner) public onlyOwner {
+        require(msg.sender != _proposedOwner, "ERROR_CALLER_ALREADY_OWNER");
+        proposedOwner = _proposedOwner;
+    }
+
+    /**
+     * @dev If the address has been proposed, it can accept the ownership,
+     * Can only be called by the current proposed owner.
+     */
+    function claimOwnership() public {
+        require(msg.sender == proposedOwner, "ERROR_NOT_PROPOSED_OWNER");
+        emit OwnershipTransferred(_owner, proposedOwner);
+        _owner = proposedOwner;
+        proposedOwner = address(0);
     }
 }

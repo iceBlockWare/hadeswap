@@ -9,7 +9,13 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         deterministicDeployment: false
     })
 
+    await deploy("Drachma", {
+        from: deployer,
+        log: true,
+        deterministicDeployment: false
+    })
+
 }
 
-module.exports.tags = ["SoulToken"]
-module.exports.dependencies = ["UniswapV2Factory", "UniswapV2Router02"]
+module.exports.tags = ["SoulToken", "Drachma"]
+module.exports.dependencies = []

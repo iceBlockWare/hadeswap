@@ -2,14 +2,25 @@
 
 pragma solidity 0.6.12;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/GSN/Context.sol";
 import "./Ownable.sol";
 
-
-// SoulToken with Governance.
-contract SoulToken is ERC20("SoulToken", "SOUL"), Ownable {
-
+// Drachma is a token used for Governance. It is minted by Plutus when DRACHMAS are deposited, and they cannot be transfered.
+contract Drachma is Ownable {
     using SafeMath for uint256;
+
+    // ** ERC20 variables ** //
+
+    mapping (address => uint256) private _balances;
+
+    uint256 private _totalSupply;
+
+    string private constant _name = "Staked Polis";
+    string private constant _symbol = "DRACHMA";
+    uint8 private constant _decimals = 18;
+
+    // ** Governance variables ** //
 
     /// @dev A record of each accounts delegate
     mapping(address => address) internal _delegates;
@@ -60,14 +71,35 @@ contract SoulToken is ERC20("SoulToken", "SOUL"), Ownable {
     );
     event Burned(address indexed burner, uint256 burnAmount);
 
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+    * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
+    * a default value of 18.
+    *
+    * To select a different value for {decimals}, use {_setupDecimals}.
+    *
+    * All three of these values are immutable: they can only be set once during
+    * construction.
+    */
+    constructor () public{
+    }
+
+
     function mint(address _to, uint256 _amount) public onlyOwner {
         _mint(_to, _amount);
         emit Minted(owner(), _to, _amount);
     }
 
-    function burn(uint256 _amount) public {
-        _burn(msg.sender, _amount);
-        emit Burned(msg.sender, _amount);
+    function burn(address _to, uint256 _amount) public onlyOwner{
+        _burn(_to, _amount);
+        emit Burned(_to, _amount);
     }
 
     /**
@@ -115,13 +147,13 @@ contract SoulToken is ERC20("SoulToken", "SOUL"), Ownable {
         address signatory = ecrecover(digest, v, r, s);
         require(
             signatory != address(0),
-            "SOUL::delegateBySig: invalid signature"
+            "POLIS::delegateBySig: invalid signature"
         );
         require(
             nonce == nonces[signatory]++,
-            "SOUL::delegateBySig: invalid nonce"
+            "POLIS::delegateBySig: invalid nonce"
         );
-        require(block.timestamp <= expiry, "SOUL::delegateBySig: signature expired");
+        require(block.timestamp <= expiry, "POLIS::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
@@ -158,7 +190,7 @@ contract SoulToken is ERC20("SoulToken", "SOUL"), Ownable {
     {
         require(
             blockNumber < block.number,
-            "SOUL::getPriorVotes: not yet determined"
+            "POLIS::getPriorVotes: not yet determined"
         );
 
         uint32 nCheckpoints = numCheckpoints[account];
@@ -194,7 +226,7 @@ contract SoulToken is ERC20("SoulToken", "SOUL"), Ownable {
 
     function _delegate(address delegator, address delegatee) internal {
         address currentDelegate = _delegates[delegator];
-        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying SOULs (not scaled);
+        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying POLIs (not scaled);
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
@@ -266,7 +298,95 @@ contract SoulToken is ERC20("SoulToken", "SOUL"), Ownable {
         address from,
         address to,
         uint256 amount
-    ) internal virtual override {
+    ) internal virtual {
         _moveDelegates(_delegates[from], _delegates[to], amount);
+    }
+
+    // Some ERC20 functions
+
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() public view virtual returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Returns the symbol of the token, usually a shorter version of the
+     * name.
+     */
+    function symbol() public view virtual returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @dev Returns the number of decimals used to get its user representation.
+     * For example, if `decimals` equals `2`, a balance of `505` tokens should
+     * be displayed to a user as `5,05` (`505 / 10 ** 2`).
+     *
+     * Tokens usually opt for a value of 18, imitating the relationship between
+     * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
+     * called.
+     *
+     * NOTE: This information is only used for _display_ purposes: it in
+     * no way affects any of the arithmetic of the contract, including
+     * {IERC20-balanceOf} and {IERC20-transfer}.
+     */
+    function decimals() public view virtual returns (uint8) {
+        return _decimals;
+    }
+
+    /**
+     * @dev See {IERC20-totalSupply}.
+     */
+    function totalSupply() public view virtual returns (uint256) {
+        return _totalSupply;
+    }
+
+    /**
+     * @dev See {IERC20-balanceOf}.
+     */
+    function balanceOf(address account) public view virtual returns (uint256) {
+        return _balances[account];
+    }
+
+    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
+     * the total supply.
+     *
+     * Emits a {Transfer} event with `from` set to the zero address.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     */
+    function _mint(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: mint to the zero address");
+
+        _beforeTokenTransfer(address(0), account, amount);
+
+        _totalSupply = _totalSupply.add(amount);
+        _balances[account] = _balances[account].add(amount);
+        emit Transfer(address(0), account, amount);
+    }
+
+    /**
+     * @dev Destroys `amount` tokens from `account`, reducing the
+     * total supply.
+     *
+     * Emits a {Transfer} event with `to` set to the zero address.
+     *
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     * - `account` must have at least `amount` tokens.
+     */
+    function _burn(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: burn from the zero address");
+
+        _beforeTokenTransfer(account, address(0), amount);
+
+        _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
+        _totalSupply = _totalSupply.sub(amount);
+        emit Transfer(account, address(0), amount);
     }
 }

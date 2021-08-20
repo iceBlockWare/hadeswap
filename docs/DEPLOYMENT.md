@@ -24,30 +24,17 @@ hardhat tenderly:verify --network mainnet ContractName=Address
 hardhat tenderly:push --network mainnet ContractName=Address
 ```
 
-## Ropsten
+
+## Sparta
 
 ```sh
-yarn ropsten:deploy
+yarn sparta:deploy
 ```
 
 ```sh
-yarn ropsten:verify
+yarn sparta:verify
 ```
 
 ```sh
-hardhat tenderly:verify --network ropsten ContractName=Address
-```
-
-## Kovan
-
-```sh
-yarn ropsten:deploy
-```
-
-```sh
-yarn ropsten:verify
-```
-
-```sh
-hardhat tenderly:verify --network kovan ContractName=Address
+hardhat tenderly:verify --network sparta ContractName=Address
 ```
