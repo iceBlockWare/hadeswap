@@ -7,9 +7,6 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
     const soul = await ethers.getContract("SoulToken")
     const drachma = await ethers.getContract("Drachma")
 
-    console.log("\n\nSoulToken address:", soul.address);
-    console.log("\n\Drachma address:", drachma.address);
-
 
     const chainId = await getChainId();
 
@@ -35,15 +32,25 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
         await (await plutus.claimToken(soul.address)).wait()
     }
 
+    function sleep(milliseconds) {
+        const date = Date.now();
+        let currentDate = null;
+        do {
+          currentDate = Date.now();
+        } while (currentDate - date < milliseconds);
+      }
+
     if (await drachma.owner() !== address) {
         // Mint if testnet
         if (chainId === "333888" || chainId === "3"){
             console.log("Drachma testnet minting")
             await drachma.mint(deployer, '1000000000000000000000')
         }
+        sleep(20000)
         // Transfer Drachma Ownership to Plutus
         console.log("Transfer Drachma Ownership to Plutus")
         await (await drachma.proposeOwner(address)).wait()
+        sleep(20000)
         await (await plutus.claimToken(drachma.address)).wait()
     }
 
