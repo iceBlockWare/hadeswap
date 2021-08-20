@@ -264,4 +264,9 @@ contract SoulMaker is Ownable {
         // X1 - X5: OK
         amountOut = _swap(token, soul, amountIn, bar);
     }
+
+    // Claim ownership of address
+    function claimToken(address _token) public {
+        Ownable(_token).claimOwnership();
+    }
 }
