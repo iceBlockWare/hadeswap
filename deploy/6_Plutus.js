@@ -7,13 +7,16 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
     const soul = await ethers.getContract("SoulToken")
     const drachma = await ethers.getContract("Drachma")
 
+    console.log("\n\nSoulToken address:", soul.address);
+    console.log("\n\Drachma address:", drachma.address);
+
 
     const chainId = await getChainId();
 
 
     const { address } = await deploy("Plutus", {
         from: deployer,
-        args: [soul.address, dev, "1000000000000000000", "100000"],
+        args: [soul.address, drachma.address, dev, "1000000000000000000", "100000"],
         log: true,
         deterministicDeployment: false
     })

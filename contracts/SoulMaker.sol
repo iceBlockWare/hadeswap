@@ -14,11 +14,11 @@ import "./Ownable.sol";
 
 import "hardhat/console.sol";
 
-// SushiMaker is MasterChef's left hand and kinda a wizard. He can cook up Sushi from pretty much anything!
-// This contract handles "serving up" rewards for xSushi holders by trading tokens collected from fees for Sushi.
+// SoulMaker is MasterChef's left hand and kinda a wizard. He can cook up Soul from pretty much anything!
+// This contract handles "serving up" rewards for xSoul holders by trading tokens collected from fees for Soul.
 
 // T1 - T4: OK
-contract SushiMaker is Ownable {
+contract SoulMaker is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -29,7 +29,7 @@ contract SushiMaker is Ownable {
     address public immutable bar;
     //0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272
     // V1 - V5: OK
-    address private immutable sushi;
+    address private immutable soul;
     //0x6B3595068778DD592e39A122f4f5a5cF09C90fE2
     // V1 - V5: OK
     address private immutable weth;
@@ -47,18 +47,18 @@ contract SushiMaker is Ownable {
         address indexed token1,
         uint256 amount0,
         uint256 amount1,
-        uint256 amountSUSHI
+        uint256 amountSOUL
     );
 
     constructor(
         address _factory,
         address _bar,
-        address _sushi,
+        address _soul,
         address _weth
     ) public {
         factory = IUniswapV2Factory(_factory);
         bar = _bar;
-        sushi = _sushi;
+        soul = _soul;
         weth = _weth;
     }
 
@@ -76,8 +76,8 @@ contract SushiMaker is Ownable {
     function setBridge(address token, address bridge) external onlyOwner {
         // Checks
         require(
-            token != sushi && token != weth && token != bridge,
-            "SushiMaker: Invalid bridge"
+            token != soul && token != weth && token != bridge,
+            "SoulMaker: Invalid bridge"
         );
 
         // Effects
@@ -90,14 +90,14 @@ contract SushiMaker is Ownable {
     // C6: It's not a fool proof solution, but it prevents flash loans, so here it's ok to use tx.origin
     modifier onlyEOA() {
         // Try to make flash-loan exploit harder to do by only allowing externally owned addresses.
-        require(msg.sender == tx.origin, "SushiMaker: must use EOA");
+        require(msg.sender == tx.origin, "SoulMaker: must use EOA");
         _;
     }
 
     // F1 - F10: OK
     // F3: _convert is separate to save gas by only checking the 'onlyEOA' modifier once in case of convertMultiple
-    // F6: There is an exploit to add lots of SUSHI to the bar, run convert, then remove the SUSHI again.
-    //     As the size of the SushiBar has grown, this requires large amounts of funds and isn't super profitable anymore
+    // F6: There is an exploit to add lots of SOUL to the bar, run convert, then remove the SOUL again.
+    //     As the size of the SoulBar has grown, this requires large amounts of funds and isn't super profitable anymore
     //     The onlyEOA modifier prevents this being done with a flash loan.
     // C1 - C24: OK
     function convert(address token0, address token1) external onlyEOA() {
@@ -124,7 +124,7 @@ contract SushiMaker is Ownable {
         // Interactions
         // S1 - S4: OK
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(token0, token1));
-        require(address(pair) != address(0), "SushiMaker: Invalid pair");
+        require(address(pair) != address(0), "SoulMaker: Invalid pair");
         // balanceOf: S1 - S4: OK
         // transfer: X1 - X5: OK
         IERC20(address(pair)).safeTransfer(
@@ -148,43 +148,43 @@ contract SushiMaker is Ownable {
 
     // F1 - F10: OK
     // C1 - C24: OK
-    // All safeTransfer, _swap, _toSUSHI, _convertStep: X1 - X5: OK
+    // All safeTransfer, _swap, _toSOUL, _convertStep: X1 - X5: OK
     function _convertStep(
         address token0,
         address token1,
         uint256 amount0,
         uint256 amount1
-    ) internal returns (uint256 sushiOut) {
+    ) internal returns (uint256 soulOut) {
         // Interactions
         if (token0 == token1) {
             uint256 amount = amount0.add(amount1);
-            if (token0 == sushi) {
-                IERC20(sushi).safeTransfer(bar, amount);
-                sushiOut = amount;
+            if (token0 == soul) {
+                IERC20(soul).safeTransfer(bar, amount);
+                soulOut = amount;
             } else if (token0 == weth) {
-                sushiOut = _toSUSHI(weth, amount);
+                soulOut = _toSOUL(weth, amount);
             } else {
                 address bridge = bridgeFor(token0);
                 amount = _swap(token0, bridge, amount, address(this));
-                sushiOut = _convertStep(bridge, bridge, amount, 0);
+                soulOut = _convertStep(bridge, bridge, amount, 0);
             }
-        } else if (token0 == sushi) {
-            // eg. SUSHI - ETH
-            IERC20(sushi).safeTransfer(bar, amount0);
-            sushiOut = _toSUSHI(token1, amount1).add(amount0);
-        } else if (token1 == sushi) {
-            // eg. USDT - SUSHI
-            IERC20(sushi).safeTransfer(bar, amount1);
-            sushiOut = _toSUSHI(token0, amount0).add(amount1);
+        } else if (token0 == soul) {
+            // eg. SOUL - ETH
+            IERC20(soul).safeTransfer(bar, amount0);
+            soulOut = _toSOUL(token1, amount1).add(amount0);
+        } else if (token1 == soul) {
+            // eg. USDT - SOUL
+            IERC20(soul).safeTransfer(bar, amount1);
+            soulOut = _toSOUL(token0, amount0).add(amount1);
         } else if (token0 == weth) {
             // eg. ETH - USDC
-            sushiOut = _toSUSHI(
+            soulOut = _toSOUL(
                 weth,
                 _swap(token1, weth, amount1, address(this)).add(amount0)
             );
         } else if (token1 == weth) {
             // eg. USDT - ETH
-            sushiOut = _toSUSHI(
+            soulOut = _toSOUL(
                 weth,
                 _swap(token0, weth, amount0, address(this)).add(amount1)
             );
@@ -194,7 +194,7 @@ contract SushiMaker is Ownable {
             address bridge1 = bridgeFor(token1);
             if (bridge0 == token1) {
                 // eg. MIC - USDT - and bridgeFor(MIC) = USDT
-                sushiOut = _convertStep(
+                soulOut = _convertStep(
                     bridge0,
                     token1,
                     _swap(token0, bridge0, amount0, address(this)),
@@ -202,14 +202,14 @@ contract SushiMaker is Ownable {
                 );
             } else if (bridge1 == token0) {
                 // eg. WBTC - DSD - and bridgeFor(DSD) = WBTC
-                sushiOut = _convertStep(
+                soulOut = _convertStep(
                     token0,
                     bridge1,
                     amount0,
                     _swap(token1, bridge1, amount1, address(this))
                 );
             } else {
-                sushiOut = _convertStep(
+                soulOut = _convertStep(
                     bridge0,
                     bridge1, // eg. USDT - DSD - and bridgeFor(DSD) = WBTC
                     _swap(token0, bridge0, amount0, address(this)),
@@ -232,7 +232,7 @@ contract SushiMaker is Ownable {
         // X1 - X5: OK
         IUniswapV2Pair pair =
             IUniswapV2Pair(factory.getPair(fromToken, toToken));
-        require(address(pair) != address(0), "SushiMaker: Cannot convert");
+        require(address(pair) != address(0), "SoulMaker: Cannot convert");
 
         // Interactions
         // X1 - X5: OK
@@ -257,11 +257,11 @@ contract SushiMaker is Ownable {
 
     // F1 - F10: OK
     // C1 - C24: OK
-    function _toSUSHI(address token, uint256 amountIn)
+    function _toSOUL(address token, uint256 amountIn)
         internal
         returns (uint256 amountOut)
     {
         // X1 - X5: OK
-        amountOut = _swap(token, sushi, amountIn, bar);
+        amountOut = _swap(token, soul, amountIn, bar);
     }
 }
