@@ -26,7 +26,7 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
     if (await soul.owner() !== address) {
         // Mint if testnet
         if (chainId === "333888" || chainId === "3"){
-            console.log("testnet minting")
+            console.log("Soul testnet minting")
             await soul.mint(deployer, '1000000000000000000000')
         }
         // Transfer Soul Ownership to Plutus
@@ -38,11 +38,11 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
     if (await drachma.owner() !== address) {
         // Mint if testnet
         if (chainId === "333888" || chainId === "3"){
-            console.log("testnet minting")
+            console.log("Drachma testnet minting")
             await drachma.mint(deployer, '1000000000000000000000')
         }
         // Transfer Drachma Ownership to Plutus
-        console.log("Transfer Soul Ownership to Plutus")
+        console.log("Transfer Drachma Ownership to Plutus")
         await (await drachma.proposeOwner(address)).wait()
         await (await plutus.claimToken(drachma.address)).wait()
     }
