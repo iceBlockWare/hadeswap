@@ -39,7 +39,7 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
         // Mint if testnet
         if (chainId === "333888" || chainId === "3"){
             console.log("Drachma testnet minting")
-            await drachma.mint(deployer, '1000000000000000000000')
+            // await drachma.mint(deployer, '1000000000000000000000')
         }
         // Transfer Drachma Ownership to Plutus
         console.log("Transfer Drachma Ownership to Plutus")
