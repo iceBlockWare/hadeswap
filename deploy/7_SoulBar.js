@@ -3,9 +3,6 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
   
     const { deployer } = await getNamedAccounts()
   
-    console.log("Deploying SoulBar...");
-    console.log("SoulBar deployer: ", deployer);
-  
     const soul = await ethers.getContract("SoulToken")
     
     const chainId = await getChainId();
