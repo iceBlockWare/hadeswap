@@ -129,6 +129,17 @@ const config: HardhatUserConfig = {
       gasMultiplier: 2,
       timeout: 100000
     },
+    olympus: {
+      url: `https://rpc.polis.tech`,
+      accounts,
+      chainId: 333999,
+      live: true,
+      saveDeployments: true,
+      tags: ["staging"],
+      gasPrice: 5000000000,
+      gasMultiplier: 2,
+      timeout: 100000
+    },
     moonbase: {
       url: "https://rpc.testnet.moonbeam.network",
       accounts,

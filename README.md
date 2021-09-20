@@ -1,9 +1,9 @@
 # Hadeswap
 
 
-## Deployed Contracts
+[comment]: <> (## Deployed Contracts)
 
-https://dev.sushi.com/sushiswap/contracts
+[comment]: <> (https://dev.sushi.com/sushiswap/contracts)
 
 ## Docs
 

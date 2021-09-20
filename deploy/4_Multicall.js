@@ -10,13 +10,15 @@ module.exports = async function ({
 
     const chainId = await getChainId();
 
+    await deploy("Multicall", {
+        from: deployer,
+        log: true,
+        deterministicDeployment: false,
+    });
+
     // deploy some test tokens
     if (chainId === "333888"){
-        await deploy("Multicall", {
-          from: deployer,
-          log: true,
-          deterministicDeployment: false,
-        });
+
         // await deploy("ERC20Mock", {
         //   from: deployer,
         //   args: ["TOKEN 2", "TOK2", '100000000000000000000000'],
