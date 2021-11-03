@@ -292,11 +292,15 @@ describe("Plutus", function () {
             await this.plutus.add("10", this.lp.address)
 
             await this.plutus.connect(this.alice).deposit(0, "10", { from: this.alice.address })
+            await this.plutus.connect(this.alice).deposit(0, "10", { from: this.alice.address })
 
-            assert.equal((await this.drachma.totalSupply()).toString(), "10");
-            assert.equal((await this.drachma.balanceOf(this.alice.address)).toString(), "10");
+            assert.equal((await this.drachma.totalSupply()).toString(), "20");
+            assert.equal((await this.drachma.balanceOf(this.alice.address)).toString(), "20");
             // Withdraw DRACHMA, lose votes
             await this.plutus.connect(this.alice).withdraw(0, "10", { from: this.alice.address })
+            // Emergency withdraw also loses votes
+            await this.plutus.connect(this.alice).emergencyWithdraw(0, { from: this.alice.address })
+
 
             assert.equal((await this.drachma.totalSupply()).toString(), '0');
             assert.equal((await this.drachma.balanceOf(this.alice.address)).toString(), '0');

@@ -42,6 +42,8 @@ contract Plutus is Ownable {
     Drachma public immutable drachma;
     // Dev address.
     address public devaddr;
+    // Dev fee
+    bool isDev = true;
     // SOUL tokens created per block.
     uint256 public soulPerBlock;
     // Info of each pool.
@@ -91,7 +93,7 @@ contract Plutus is Ownable {
     }
 
     // Update the given pool's SOUL allocation point.
-    function set( uint256 _pid, uint256 _allocPoint) public onlyOwner {
+    function set(uint256 _pid, uint256 _allocPoint) public onlyOwner {
         massUpdatePools();
         totalAllocPoint = totalAllocPoint.sub(poolInfo[_pid].allocPoint).add(_allocPoint);
         poolInfo[_pid].allocPoint = _allocPoint;
@@ -135,7 +137,9 @@ contract Plutus is Ownable {
         multiplier.mul(soulPerBlock).mul(pool.allocPoint).div(
             totalAllocPoint
         );
-        soul.mint(devaddr, soulReward.div(10));
+        if(isDev){
+            soul.mint(devaddr, soulReward.div(10));
+        }
         soul.mint(address(this), soulReward);
         pool.accSoulPerShare = pool.accSoulPerShare.add(
             soulReward.mul(1e12).div(lpSupply)
@@ -202,6 +206,10 @@ contract Plutus is Ownable {
         user.amount = 0;
         user.rewardDebt = 0;
         pool.lpToken.safeTransfer(address(msg.sender), _amount);
+        if (_pid == 0) {
+            // Burn the drachma from user
+            drachma.burn(address(msg.sender), _amount);
+        }
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
     }
 
@@ -218,6 +226,11 @@ contract Plutus is Ownable {
     // Update dev address
     function dev(address _devaddr) public onlyOwner {
         devaddr = _devaddr;
+    }
+
+    // Turn the fee on or off
+    function devSwitch(bool _isdev) public onlyOwner {
+        isDev = _isdev;
     }
 
     // Change soul per block. Affects rewards for all users.

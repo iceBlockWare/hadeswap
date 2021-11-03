@@ -13,7 +13,7 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
 
     const { address } = await deploy("Plutus", {
         from: deployer,
-        args: [soul.address, drachma.address, dev, "1000000000000000000", "40000"],
+        args: [soul.address, drachma.address, dev, "15000000000000000000", "1097276"],
         log: true,
         deterministicDeployment: false
     })
@@ -28,7 +28,7 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
         }
         // Transfer Soul Ownership to Plutus
         console.log("Transfer Soul Ownership to Plutus")
-        // await (await soul.proposeOwner(address)).wait()
+        await (await soul.proposeOwner(address)).wait()
         await (await plutus.claimToken(soul.address)).wait()
     }
 
@@ -49,7 +49,7 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
         // sleep(20000)
         // Transfer Drachma Ownership to Plutus
         console.log("Transfer Drachma Ownership to Plutus")
-        // await (await drachma.proposeOwner(address)).wait()
+        await (await drachma.proposeOwner(address)).wait()
         // sleep(20000)
         await (await plutus.claimToken(drachma.address)).wait()
     }

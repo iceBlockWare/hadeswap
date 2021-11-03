@@ -3,8 +3,6 @@
 
 [comment]: <> (## Deployed Contracts)
 
-[comment]: <> (https://dev.sushi.com/sushiswap/contracts)
-
 ## Docs
 
 [Development](docs/DEVELOPMENT.md)

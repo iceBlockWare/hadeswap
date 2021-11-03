@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/GSN/Context.sol";
 import "./Ownable.sol";
 
-// Drachma is a token used for Governance. It is minted by Plutus when DRACHMAS are deposited, and they cannot be transfered.
+// Drachma is a token used for Governance. It is minted by Plutus, and they cannot be transfered.
 contract Drachma is Ownable {
     using SafeMath for uint256;
 
@@ -16,7 +16,7 @@ contract Drachma is Ownable {
 
     uint256 private _totalSupply;
 
-    string private constant _name = "Staked Polis";
+    string private constant _name = "Drachma";
     string private constant _symbol = "DRACHMA";
     uint8 private constant _decimals = 18;
 
