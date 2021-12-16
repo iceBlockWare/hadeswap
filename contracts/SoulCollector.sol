@@ -204,14 +204,12 @@ contract SoulCollector is Ownable {
             reserve0.mul(1000).add(amountInWithFee);
             IERC20(fromToken).safeTransfer(address(pair), amountIn);
             pair.swap(0, amountOut, to, new bytes(0));
-            // TODO: Add maximum slippage?
         } else {
             amountOut =
             amountInWithFee.mul(reserve0) /
             reserve1.mul(1000).add(amountInWithFee);
             IERC20(fromToken).safeTransfer(address(pair), amountIn);
             pair.swap(amountOut, 0, to, new bytes(0));
-            // TODO: Add maximum slippage?
         }
     }
 
